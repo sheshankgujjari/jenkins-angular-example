@@ -1,0 +1,54 @@
+pipeline {
+
+    agent any
+    
+
+    // The options directive is for configuration that applies to the whole job.
+    options {
+        buildDiscarder(logRotator(numToKeepStr: '50', artifactNumToKeepStr: '1'))
+        timeout(time: 15, unit: 'MINUTES')
+        ansiColor('xterm')
+        timestamps()
+    }
+
+        stage("npm") {
+    
+            steps {
+                sh 'printenv'
+
+                echo '### Install deps ###'
+                sh 'npm install'
+
+                echo '### Install deps ###'
+                sh 'npm run clean'
+
+                echo '### Running linter ###'
+                sh 'npm run lint'
+
+                echo '### Running tests ###'
+                sh 'npm run test:ci'
+                sh 'npm run e2e:ci'
+
+                echo '### Running build ###'
+                sh '''
+                    npm run build
+                '''
+
+                
+                echo '### Packaging App ###'
+                sh 'npm run package'
+                sh 'npm run publish'
+            }
+   
+            
+        }
+
+       
+       
+    }
+    // post {
+    //     always {
+    //         archiveArtifacts "**"
+    //     }
+    // }
+}

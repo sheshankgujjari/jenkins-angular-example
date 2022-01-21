@@ -1,46 +1,10 @@
 pipeline {
-
-    agent any
-    tools { nodejs "Angular Project" }
-    stages {
-        stage("npm") {
-    
-            steps {
-                sh 'printenv'
-
-                echo '### Install deps ###'
-                sh 'npm install'
-
-                echo '### Install deps ###'
-                sh 'npm run clean'
-
-                echo '### Running linter ###'
-                sh 'npm run lint'
-
-                echo '### Running tests ###'
-                sh 'npm run test:ci'
-                sh 'npm run e2e:ci'
-
-                echo '### Running build ###'
-                sh '''
-                    npm run build
-                '''
-
-                
-                echo '### Packaging App ###'
-                sh 'npm run package'
-                sh 'npm run publish'
-            }
-   
-            
-        }
-
-       
-       
+  agent {
+    docker { image 'node:latest' }
+  }
+  stages {
+    stage('Install') {
+      steps { sh 'npm install' }
     }
-    // post {
-    //     always {
-    //         archiveArtifacts "**"
-    //     }
-    // }
+  }
 }
